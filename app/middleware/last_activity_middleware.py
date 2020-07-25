@@ -11,5 +11,3 @@ class LastActivityMiddleware(object):
         User.objects.filter(id=request.user.pk).update(
                 last_activity=timezone.now())
         return response
-
-

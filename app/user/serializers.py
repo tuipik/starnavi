@@ -6,8 +6,11 @@ from rest_framework_jwt.settings import api_settings
 from core.models import User
 
 
+JWT_PAYLOAD_HANDLER = api_settings.JWT_PAYLOAD_HANDLER
+JWT_ENCODE_HANDLER = api_settings.JWT_ENCODE_HANDLER
+
+
 class UserSerializer(serializers.ModelSerializer):
-    """Serializer for the users object"""
 
     class Meta:
         model = get_user_model()
@@ -15,11 +18,9 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True, 'min_length': 5}}
 
     def create(self, validated_data):
-        """Create a new user with encrypted password and return it"""
         return get_user_model().objects.create_user(**validated_data)
 
     def update(self, instance, validated_data):
-        """Update a user, setting the password correctly and return it"""
         password = validated_data.pop('password', None)
         user = super().update(instance, validated_data)
 
@@ -28,10 +29,6 @@ class UserSerializer(serializers.ModelSerializer):
             user.save()
 
         return user
-
-
-JWT_PAYLOAD_HANDLER = api_settings.JWT_PAYLOAD_HANDLER
-JWT_ENCODE_HANDLER = api_settings.JWT_ENCODE_HANDLER
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -60,3 +57,8 @@ class UserLoginSerializer(serializers.Serializer):
             'email': user.email,
             'token': jwt_token
         }
+
+
+class UserAnaliticsQueryParamsSerializer(serializers.Serializer):
+    date_from = serializers.DateField(required=False)
+    date_to = serializers.DateField(required=False)

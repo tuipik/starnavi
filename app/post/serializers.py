@@ -4,7 +4,6 @@ from core.models import Post
 
 class PostSerializer(serializers.ModelSerializer):
 
-    total_likes = serializers.SerializerMethodField(read_only=True)
     user = serializers.ReadOnlyField(source="user.email")
 
     class Meta:
@@ -14,10 +13,6 @@ class PostSerializer(serializers.ModelSerializer):
             "text",
             "user",
             "created",
-            "total_likes",
-            "likes",
+            "likes_count",
         )
-        read_only_fields = ("id", "likes",)
-
-    def get_total_likes(self, obj):
-        return obj.likes.count()
+        read_only_fields = ("id",)

@@ -1,9 +1,14 @@
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.views import APIView
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
-from .serializers import UserSerializer, UserLoginSerializer
+from .serializers import (UserSerializer,
+                          UserLoginSerializer,
+                          UserAnaliticsQueryParamsSerializer)
+from core.models import Like
 
 
 class UserRegistrationView(CreateAPIView):
@@ -33,10 +38,10 @@ class UserLoginView(RetrieveAPIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         response = {
-            'success' : 'True',
-            'status code' : status.HTTP_200_OK,
+            'success': 'True',
+            'status code': status.HTTP_200_OK,
             'message': 'User logged in  successfully',
-            'token' : serializer.data['token'],
+            'token': serializer.data['token'],
             }
         status_code = status.HTTP_200_OK
 
@@ -44,7 +49,6 @@ class UserLoginView(RetrieveAPIView):
 
 
 class UserProfileView(RetrieveAPIView):
-
     permission_classes = (IsAuthenticated,)
     authentication_class = JSONWebTokenAuthentication
 
@@ -73,3 +77,40 @@ class UserProfileView(RetrieveAPIView):
                 'error': str(e)
                 }
         return Response(response, status=status_code)
+
+
+class UserAnaliticsView(APIView):
+    permission_classes = (IsAuthenticated,)
+    authentication_class = JSONWebTokenAuthentication
+
+    def get_dates_from_valid_data(self, valid_data):
+        date_from = valid_data.get('date_from')
+        date_to = valid_data.get('date_to')
+        today = timezone.now()
+        if not date_from:
+            date_from = '2020-01-01'
+        if not date_to:
+            date_to = today
+        return date_from, date_to
+
+    def get(self, request):
+        query_params_serializer = UserAnaliticsQueryParamsSerializer(
+            data=request.query_params)
+        if not query_params_serializer.is_valid():
+            return Response({'errors': query_params_serializer.errors})
+        validated_data = query_params_serializer.validated_data
+        date_from, date_to = self.get_dates_from_valid_data(validated_data)
+        statistics = Like.objects.filter(
+            created__gte=date_from,
+            created__lte=date_to,
+            user_id=self.request.user.id
+        ).count()
+
+        return Response(
+            {
+                "user": self.request.user.email,
+                "date_from": date_from,
+                "date_to": date_to.strftime("%Y-%m-%d"),
+                "likes": statistics
+            }
+        )
