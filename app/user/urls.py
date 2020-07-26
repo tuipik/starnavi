@@ -8,8 +8,8 @@ from .views import (UserRegistrationView,
 app_name = 'user'
 
 urlpatterns = [
-    path('signup/', UserRegistrationView.as_view()),
-    path('signin/', UserLoginView.as_view()),
-    path('profile/', UserProfileView.as_view()),
-    path('analitics/', UserAnaliticsView.as_view()),
+    path('signup/', UserRegistrationView.as_view(), name='signup'),
+    path('signin/', UserLoginView.as_view(), name='signin'),
+    path('profile/', UserProfileView.as_view(), name='profile'),
+    path('analitics/', UserAnaliticsView.as_view(), name='analitics'),
     ]

@@ -10,6 +10,6 @@ router.register("posts", PostViewSet, basename="posts")
 app_name = "post"
 
 urlpatterns = [
-    path("posts/<int:pk>/like/", LikeView.as_view()),
+    path("posts/<int:pk>/like/", LikeView.as_view(), name='like'),
     path("", include(router.urls)),
 ]
