@@ -1,4 +1,3 @@
-from django.utils import timezone
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework.response import Response
@@ -9,6 +8,7 @@ from .serializers import (UserSerializer,
                           UserLoginSerializer,
                           UserAnaliticsQueryParamsSerializer)
 from core.models import Like
+from django.conf import settings as s
 
 
 class UserRegistrationView(CreateAPIView):
@@ -86,11 +86,10 @@ class UserAnaliticsView(APIView):
     def get_dates_from_valid_data(self, valid_data):
         date_from = valid_data.get('date_from')
         date_to = valid_data.get('date_to')
-        today = timezone.now()
         if not date_from:
-            date_from = '2020-01-01'
+            date_from = s.DATE_FROM
         if not date_to:
-            date_to = today
+            date_to = s.DATE_TO
         return date_from, date_to
 
     def get(self, request):

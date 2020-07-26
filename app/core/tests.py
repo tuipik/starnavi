@@ -105,6 +105,7 @@ class PostsTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         self.assertEqual(res.data, post.json()[0])
+        self.assertEqual(res.data['text'], 'Some example text')
 
     def test_post_create_unauthorized(self):
         self.client.logout()
@@ -165,7 +166,7 @@ class PostsTests(TestCase):
 
     def test_user_analitics(self):
         """
-        Test likes filering by date.
+        Test likes filtering by date.
         Creates 6 posts and every post likes with different date, then filters
         from the second one to the one before the last
         Result of filtering should be 4 likes
